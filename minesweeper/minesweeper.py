@@ -189,19 +189,23 @@ class MinesweeperAI():
         self.infer_new_sentences()
 
     def update_knowledge(self):
-        """
-        Mark cells as safe or as mines based on the current knowledge.
-        """
-        for sentence in self.knowledge.copy():
-            if sentence.known_mines():
-                for cell in sentence.known_mines():
-                    self.mark_mine(cell)
-            if sentence.known_safes():
-                for cell in sentence.known_safes():
-                    self.mark_safe(cell)
+        new_mines = set()
+        new_safes = set()
 
-        # Remove empty sentences (fully inferred)
-        self.knowledge = [s for s in self.knowledge if s.cells]
+        # Collect all mines and safes in temporary sets
+        for sentence in self.knowledge:
+            new_mines.update(sentence.known_mines())
+            new_safes.update(sentence.known_safes())
+
+        # Add to the AI's knowledge of mines and safes
+        for cell in new_mines:
+            self.mark_mine(cell)
+        for cell in new_safes:
+            self.mark_safe(cell)
+
+        # Remove empty sentences from the knowledge base
+        self.knowledge = [sentence for sentence in self.knowledge if sentence.cells]
+
 
     def infer_new_sentences(self):
         """
